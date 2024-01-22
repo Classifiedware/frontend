@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+    container_name: classifiedware_frontend
+    volumes:
+        - ./:/usr/src/nuxt-app
+    ports:
+         - "3000:3000"
