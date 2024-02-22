@@ -43,7 +43,7 @@
                       </div>
                     </template>
 
-                    <template v-if="groupOption.type === 'select'">
+                    <template v-if="groupOption.type === 'select' && groupOption.name !== 'Modell'">
                       <div class="col-md-4 col-sm-6">
                         <div class="input-group mb-3">
                           <span class="input-group-text">{{ groupOption.name }}</span>
@@ -55,6 +55,40 @@
                                     :value="optionValue.id">
                               {{ optionValue.value }}
                             </option>
+                          </select>
+                        </div>
+                      </div>
+                    </template>
+
+                    <template v-if="groupOption.type === 'select' && groupOption.name === 'Modell'">
+                      <div class="col-md-4 col-sm-6">
+                        <div class="input-group mb-3">
+                          <span class="input-group-text">{{ groupOption.name }}</span>
+                          <select :id="`select-${groupOption.id}`"
+                                  class="form-select"
+                                  v-model="groupOption.selectFrom">
+                            <template v-for="groupOptionValue in groupOption.optionValues">
+
+                              <option v-if="groupOptionValue.childName"
+                                      :label="groupOptionValue.childName"
+                                      :value="groupOptionValue.id">
+                                {{ groupOptionValue.childName }}
+                              </option>
+
+                              <option v-if="groupOptionValue.values"
+                                      v-for="childValue in groupOptionValue.values"
+                                      :label="childValue.value"
+                                      :value="childValue.id">
+                                {{ childValue.value }}
+                              </option>
+
+                              <option v-if="groupOptionValue.value"
+                                      :label="groupOptionValue.value"
+                                      :value="groupOptionValue.id">
+                                {{ groupOptionValue.value }}
+                              </option>
+
+                            </template>
                           </select>
                         </div>
                       </div>
@@ -186,6 +220,9 @@ const {data: properties} = await searchService.searchProperties();
 const checkboxIds = ref([]);
 const selectIdsFrom = ref([]);
 const selectIdsTo = ref([]);
+
+const selectedBrand = ref([]);
+
 
 async function searchClassifieds() {
   properties.forEach((property) => {
