@@ -43,16 +43,17 @@
                       </div>
                     </template>
 
-                    <template v-if="groupOption.type === 'select' && groupOption.name !== 'Modell'">
+                    <template v-if="groupOption.type === 'select' && groupOption.name === 'Marke'">
                       <div class="col-md-4 col-sm-6">
                         <div class="input-group mb-3">
                           <span class="input-group-text">{{ groupOption.name }}</span>
                           <select :id="`select-${groupOption.id}`"
                                   class="form-select"
-                                  v-model="groupOption.selectFrom">
+                                  v-model="selectedBrand"
+                          >
                             <option value="">beliebig</option>
                             <option v-for="optionValue in groupOption.optionValues"
-                                    :value="optionValue.id">
+                                    :value="optionValue">
                               {{ optionValue.value }}
                             </option>
                           </select>
@@ -65,9 +66,13 @@
                         <div class="input-group mb-3">
                           <span class="input-group-text">{{ groupOption.name }}</span>
                           <select :id="`select-${groupOption.id}`"
+                                  :disabled="possibleModels.length === 0"
                                   class="form-select"
-                                  v-model="groupOption.selectFrom">
-                            <template v-for="groupOptionValue in groupOption.optionValues">
+                                  v-model="selectedModel"
+                          >
+                            <option value="">beliebig</option>
+                            <template v-if="possibleModels"
+                                      v-for="groupOptionValue in possibleModels">
 
                               <option v-if="groupOptionValue.childName"
                                       :label="groupOptionValue.childName"
@@ -89,6 +94,25 @@
                               </option>
 
                             </template>
+                          </select>
+                        </div>
+                      </div>
+                    </template>
+
+                    <template v-if="groupOption.type === 'select'
+                    && groupOption.name !== 'Marke'
+                    && groupOption.name !== 'Modell'">
+                      <div class="col-md-4 col-sm-6">
+                        <div class="input-group mb-3">
+                          <span class="input-group-text">{{ groupOption.name }}</span>
+                          <select :id="`select-${groupOption.id}`"
+                                  class="form-select"
+                                  v-model="groupOption.selectFrom">
+                            <option value="">beliebig</option>
+                            <option v-for="optionValue in groupOption.optionValues"
+                                    :value="optionValue.id">
+                              {{ optionValue.value }}
+                            </option>
                           </select>
                         </div>
                       </div>
@@ -207,7 +231,7 @@
 <script setup>
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import {ref} from 'vue';
+import { ref, watch } from 'vue';
 import {useRouter} from 'nuxt/app';
 
 import SearchService from "../service/search.service";
@@ -222,9 +246,41 @@ const selectIdsFrom = ref([]);
 const selectIdsTo = ref([]);
 
 const selectedBrand = ref([]);
+const selectedModel = ref([]);
+
+let possibleModels = ref([]);
+
+function filterModelsByBrand(brand) {
+  const filteredModels = ref([]);
+
+  properties.forEach((property) => {
+    console.log('lo property', property);
+
+    property.groupOptions.forEach((groupOption) => {
+      groupOption.optionValues.forEach((optionValue) => {
+        if (property.name === 'Marke, Modell, Variante' && groupOption.name === 'Modell' && optionValue.parentName === brand) {
+          filteredModels.value.push(optionValue);
+        }
+      });
+    })
+  });
+
+  return filteredModels;
+}
+
+watch(selectedBrand, () => {
+  console.log('selectedBrand changed');
+
+  possibleModels = filterModelsByBrand(selectedBrand.value.value);
+});
 
 
 async function searchClassifieds() {
+  console.log('properties', properties);
+
+  console.log('selected brand', selectedBrand);
+  console.log('selected model', selectedModel);
+
   properties.forEach((property) => {
     property.groupOptions.forEach((groupOption) => {
       if (groupOption.selectFrom) {
