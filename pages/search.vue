@@ -269,9 +269,19 @@ function filterModelsByBrand(brand) {
 }
 
 watch(selectedBrand, () => {
-  console.log('selectedBrand changed');
+  console.log('selectedBrand changed', selectedBrand);
+
+  // In case of no brand is selected
+  // Remove the previously selected model
+  if (selectedBrand.value.length === 0) {
+    possibleModels = ref([]);
+    selectedModel.value = [];
+
+    return;
+  }
 
   possibleModels = filterModelsByBrand(selectedBrand.value.value);
+  selectedModel.value = [];
 });
 
 
