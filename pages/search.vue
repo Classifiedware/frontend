@@ -293,6 +293,14 @@ async function searchClassifieds() {
     })
   });
 
+  if (selectedBrand.value.id) {
+    selectIdsFrom.value.push(selectedBrand.value.id);
+  }
+
+  if (selectedModel.value.length) {
+    selectIdsFrom.value.push(selectedModel.value);
+  }
+
   const routerQuery = ref([]);
 
   routerQuery.value.page = 1;
