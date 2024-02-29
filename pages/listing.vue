@@ -21,7 +21,80 @@
 
                     <div class="row">
                     <template v-for="groupOption in property.groupOptions">
-                      <template v-if="groupOption.type === 'select'">
+                      <template v-if="groupOption.type === 'checkbox'">
+                        <div class="col-md-6 col-sm-6">
+                          <div class="mb-3 form-check">
+                            <input type="checkbox"
+                                   class="form-check-input"
+                                   :value="groupOption.id"
+                                   :id="`checkbox-${groupOption.id}`"
+                                   v-model="checkboxIds">
+                            <label class="form-check-label" :for="`checkbox-${groupOption.id}`">{{
+                                groupOption.name
+                              }}</label>
+                          </div>
+                        </div>
+                      </template>
+
+                      <template v-if="groupOption.type === 'select' && groupOption.name === 'Marke'">
+                        <div class="col-md-12 col-sm-6">
+                          <div class="input-group mb-3">
+                            <span class="input-group-text">{{ groupOption.name }}</span>
+                            <select :id="`select-${groupOption.id}`"
+                                    class="form-select"
+                                    v-model="selectedBrand"
+                            >
+                              <option value="">beliebig</option>
+                              <option v-for="optionValue in groupOption.optionValues"
+                                      :value="optionValue">
+                                {{ optionValue.value }}
+                              </option>
+                            </select>
+                          </div>
+                        </div>
+                      </template>
+
+                      <template v-if="groupOption.type === 'select' && groupOption.name === 'Modell'">
+                        <div class="col-md-12 col-sm-6">
+                          <div class="input-group mb-3">
+                            <span class="input-group-text">{{ groupOption.name }}</span>
+                            <select :id="`select-${groupOption.id}`"
+                                    :disabled="possibleModels.length === 0"
+                                    class="form-select"
+                                    v-model="selectedModel"
+                            >
+                              <option value="">beliebig</option>
+                              <template v-if="possibleModels"
+                                        v-for="groupOptionValue in possibleModels">
+
+                                <option v-if="groupOptionValue.childName"
+                                        :label="groupOptionValue.childName"
+                                        :value="groupOptionValue.id">
+                                  {{ groupOptionValue.childName }}
+                                </option>
+
+                                <option v-if="groupOptionValue.values"
+                                        v-for="childValue in groupOptionValue.values"
+                                        :label="childValue.value"
+                                        :value="childValue.id">
+                                  {{ childValue.value }}
+                                </option>
+
+                                <option v-if="groupOptionValue.value"
+                                        :label="groupOptionValue.value"
+                                        :value="groupOptionValue.id">
+                                  {{ groupOptionValue.value }}
+                                </option>
+
+                              </template>
+                            </select>
+                          </div>
+                        </div>
+                      </template>
+
+                      <template v-if="groupOption.type === 'select'
+                      && groupOption.name !== 'Marke'
+                      && groupOption.name !== 'Modell'">
                         <div class="col-md-12 col-sm-6">
                           <div class="input-group mb-3">
                             <span class="input-group-text">{{ groupOption.name }}</span>
@@ -34,21 +107,6 @@
                                 {{ optionValue.value }}
                               </option>
                             </select>
-                          </div>
-                        </div>
-                      </template>
-
-                      <template v-if="groupOption.type === 'checkbox'">
-                        <div class="col-md-6 col-sm-6">
-                          <div class="mb-3 form-check">
-                            <input type="checkbox"
-                                   class="form-check-input"
-                                   :value="groupOption.id"
-                                   :id="`checkbox-${groupOption.id}`"
-                                   v-model="checkboxIds">
-                            <label class="form-check-label" :for="`checkbox-${groupOption.id}`">{{
-                                groupOption.name
-                              }}</label>
                           </div>
                         </div>
                       </template>
@@ -249,7 +307,7 @@
 <script setup>
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import {ref} from 'vue';
+import { ref, watch } from 'vue';
 import { useRoute, useRouter, useAsyncData } from 'nuxt/app';
 
 import SearchService from "../service/search.service";
@@ -268,6 +326,11 @@ const checkboxIds = ref([]);
 const selectIdsFrom = ref([]);
 const selectIdsTo = ref([]);
 
+const selectedBrand = ref('');
+const selectedModel = ref('');
+
+let possibleModels = ref([]);
+
 if (route.query['page']) {
     page.value = parseInt(route.query['page']);
 }
@@ -282,6 +345,27 @@ if (route.query['sIdsFrom']) {
 
 if (route.query['sIdsTo']) {
   selectIdsTo.value = route.query['sIdsTo'].split(',');
+}
+
+if (route.query['brand']) {
+  selectedBrand.value = route.query['brand'];
+}
+
+if (route.query['model']) {
+  selectedModel.value = route.query['model'];
+}
+
+function setBrandFromQuery() {
+  properties.forEach((property) => {
+    property.groupOptions.forEach((groupOption) => {
+      groupOption.optionValues.forEach((optionValue) => {
+        if (selectedBrand.value === optionValue.id) {
+          selectedBrand.value = optionValue;
+          possibleModels = filterModelsByBrand(optionValue.value);
+        }
+      })
+    })
+  });
 }
 
 function setSelectGroupOptionsFromQuery() {
@@ -326,7 +410,38 @@ function getSelectIdsForSearchFromGroupOptions() {
   }
 }
 
+setBrandFromQuery();
 setSelectGroupOptionsFromQuery();
+
+function filterModelsByBrand(brand) {
+  const filteredModels = ref([]);
+
+  properties.forEach((property) => {
+    property.groupOptions.forEach((groupOption) => {
+      groupOption.optionValues.forEach((optionValue) => {
+        if (property.name === 'Marke, Modell, Variante' && groupOption.name === 'Modell' && optionValue.parentName === brand) {
+          filteredModels.value.push(optionValue);
+        }
+      });
+    })
+  });
+
+  return filteredModels;
+}
+
+watch(selectedBrand, () => {
+  // In case of no brand is selected
+  // Remove the previously selected model
+  if (selectedBrand.value.length === 0) {
+    possibleModels = ref([]);
+    selectedModel.value = [];
+
+    return;
+  }
+
+  possibleModels = filterModelsByBrand(selectedBrand.value.value);
+  selectedModel.value = [];
+});
 
 async function searchClassifieds() {
   const routerQuery = ref([]);
@@ -347,6 +462,14 @@ async function searchClassifieds() {
 
   if (selectIdsForSearch.to.value.length) {
     routerQuery.value.sIdsTo = selectIdsForSearch.to.value.join(',');
+  }
+
+  if (selectedBrand.value) {
+    routerQuery.value.brand = selectedBrand.value.id;
+  }
+
+  if (selectedModel.value) {
+    routerQuery.value.model = selectedModel.value;
   }
 
   await navigateTo({

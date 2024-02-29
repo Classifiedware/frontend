@@ -254,8 +254,6 @@ function filterModelsByBrand(brand) {
   const filteredModels = ref([]);
 
   properties.forEach((property) => {
-    console.log('lo property', property);
-
     property.groupOptions.forEach((groupOption) => {
       groupOption.optionValues.forEach((optionValue) => {
         if (property.name === 'Marke, Modell, Variante' && groupOption.name === 'Modell' && optionValue.parentName === brand) {
@@ -269,8 +267,6 @@ function filterModelsByBrand(brand) {
 }
 
 watch(selectedBrand, () => {
-  console.log('selectedBrand changed', selectedBrand);
-
   // In case of no brand is selected
   // Remove the previously selected model
   if (selectedBrand.value.length === 0) {
@@ -286,11 +282,6 @@ watch(selectedBrand, () => {
 
 
 async function searchClassifieds() {
-  console.log('properties', properties);
-
-  console.log('selected brand', selectedBrand);
-  console.log('selected model', selectedModel);
-
   properties.forEach((property) => {
     property.groupOptions.forEach((groupOption) => {
       if (groupOption.selectFrom) {
@@ -302,14 +293,6 @@ async function searchClassifieds() {
       }
     })
   });
-
-  if (selectedBrand.value.id) {
-    selectIdsFrom.value.push(selectedBrand.value.id);
-  }
-
-  if (selectedModel.value.length) {
-    selectIdsFrom.value.push(selectedModel.value);
-  }
 
   const routerQuery = ref([]);
 
@@ -325,6 +308,14 @@ async function searchClassifieds() {
 
   if (selectIdsTo.value.length) {
     routerQuery.value.sIdsTo = selectIdsTo.value.join(',');
+  }
+
+  if (selectedBrand.value.id) {
+    routerQuery.value.brand = selectedBrand.value.id;
+  }
+
+  if (selectedModel.value.length) {
+    routerQuery.value.model = selectedModel.value;
   }
 
   await router.push({

@@ -25,10 +25,10 @@ export default class SearchService {
             if (groupOptionRow.optionValues) {
                 groupOptionRow.optionValues.forEach((optionValueRow: any) => {
                     const optionValue: IOptionValue = {
-                        parentName: optionValueRow.parentName,
-                        childName: optionValueRow.childName,
+                        parentName: optionValueRow.parentName || '',
+                        childName: optionValueRow.childName || '',
                         value: optionValueRow.value,
-                        values: optionValueRow.values,
+                        values: optionValueRow.values || [],
                         id: optionValueRow.id,
                     };
 
