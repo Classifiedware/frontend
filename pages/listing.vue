@@ -482,6 +482,8 @@ async function searchClassifieds() {
       'classifieds',
       () => classifiedSearchService.searchClassifieds(
           page.value,
+          selectedBrand.value ? selectedBrand.value.id : '',
+          selectedModel.value ? selectedModel.value : '',
           checkboxIds.value,
           selectIdsForSearch.from.value,
           selectIdsForSearch.to.value
@@ -494,6 +496,8 @@ const { data: classifieds } = await useAsyncData(
     'classifieds',
     () => classifiedSearchService.searchClassifieds(
         page.value,
+        selectedBrand.value ? selectedBrand.value.id : '',
+        selectedModel.value ? selectedModel.value : '',
         checkboxIds.value,
         selectIdsFrom.value,
         selectIdsTo.value
