@@ -434,13 +434,13 @@ watch(selectedBrand, () => {
   // Remove the previously selected model
   if (selectedBrand.value.length === 0) {
     possibleModels = ref([]);
-    selectedModel.value = [];
+    selectedModel.value = '';
 
     return;
   }
 
   possibleModels = filterModelsByBrand(selectedBrand.value.value);
-  selectedModel.value = [];
+  selectedModel.value = '';
 });
 
 async function searchClassifieds() {
