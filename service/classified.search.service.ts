@@ -5,17 +5,23 @@ import { IClassifiedOption } from "~/types/classifiedOption";
 export default class ClassifiedSearchService {
     async searchClassifieds(
         page: number,
+        brand: string,
+        model: string,
         propertyGroupOptionIds: any,
         propertyGroupOptionIdsSelectFrom: any,
         propertyGroupOptionIdsSelectTo: any
     ): Promise<{ data: any } | { data: IClassified[] }> {
         const config = useRuntimeConfig();
 
+        console.log('brand', brand);
+
         return await $fetch(`/search/classified`, {
             method: 'POST',
             baseURL: config.public.apiUrl,
             body: {
                 page,
+                brand,
+                model,
                 propertyGroupOptionIds,
                 propertyGroupOptionIdsSelectFrom,
                 propertyGroupOptionIdsSelectTo
