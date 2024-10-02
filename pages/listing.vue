@@ -228,7 +228,7 @@
                   <div class="col-4">
                     <div class="classified-image-block">
                       <img class="img-responsive"
-                           :src="`https://via.placeholder.com/240x180.png?text=${classified.name}`"
+                           :src="classified.thumbnailUrl"
                            :alt="classified.name">
                     </div>
                   </div>

@@ -52,6 +52,7 @@ export default class ClassifiedSearchService {
           description: data.description,
           price: data.price,
           offerNumber: data.offerNumber,
+          thumbnailUrl: data.thumbnailUrl,
           options: classifiedOptions,
         };
 

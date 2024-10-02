@@ -6,5 +6,6 @@ export interface IClassified {
     description: string,
     price: string,
     offerNumber: string,
+    thumbnailUrl: string,
     options: IClassifiedOption[],
 }
